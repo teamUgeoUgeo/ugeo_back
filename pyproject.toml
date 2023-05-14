@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "ugeo-back"
+version = "0.1.0"
+description = ""
+authors = ["SiGae <sigae@protonmail.com>"]
+readme = "README.md"
+packages = [{include = "ugeo_back"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.95.1"
+uvicorn = "^0.22.0"
+sqlalchemy = "^2.0.12"
+alembic = "^1.10.4"
+pydantic = {extras = ["email"], version = "^1.10.7"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+python-multipart = "^0.0.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
