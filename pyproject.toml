@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "ugeo_back"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 fastapi = "^0.95.1"
 uvicorn = "^0.22.0"
 sqlalchemy = "^2.0.12"
