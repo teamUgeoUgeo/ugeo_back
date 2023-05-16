@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
 
 from database import get_db
 from models import Article, User
 from router.user import get_current_user
+from service import article
 
 router = APIRouter(prefix="/api/article", )
 
@@ -19,8 +19,12 @@ def get_article_list(db: Session = Depends(get_db),
              status_code=status.HTTP_204_NO_CONTENT,
              summary="게시글 작성",
              tags=['Article'])
-def post_article():
-    pass
+def post_article(_article_create: article.ArticleCreate,
+                 db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
+    article.create_article(db=db,
+                           article_create=_article_create,
+                           user_validation=current_user)
 
 
 @router.patch("/{article_id}", summary="게시글 수정", tags=['Article'])
