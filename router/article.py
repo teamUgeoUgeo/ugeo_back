@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/article", )
 @router.get("/", tags=['Article'], summary="게시글 목록 조회")
 def get_article_list(db: Session = Depends(get_db),
                      current_user: User = Depends(get_current_user)):
-    return db.query(Article).order_by(desc(Article.create_at)).all()
+    return article.get_article_list(db, user_id=current_user.id)
 
 
 @router.post("/",

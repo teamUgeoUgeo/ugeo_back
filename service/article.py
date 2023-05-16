@@ -45,3 +45,21 @@ def create_article(db: Session, article_create: ArticleCreate,
     db.add(db_question)
     db.commit()
 
+
+def get_article_list(db: Session, user_id: int):
+    responses = db.query(Article, User.username, User.nickname).order_by(desc(
+        Article.create_at)).filter(User.id==Article.user_id).filter(Article.user_id==user_id).all()
+
+    output_response = []
+    for response in responses:
+        converted_response = {
+            'id': response[0].id,
+            'detail': response[0].detail,
+            'amount': response[0].amount,
+            'create_at': response[0].create_at,
+            'username': response[1],
+            'nickname': response[2]
+
+        }
+        output_response.append(converted_response)
+    return output_response
