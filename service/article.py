@@ -36,6 +36,10 @@ class ArticleCreate(BaseModel):
         return v
 
 
+class QuestionUpdate(ArticleCreate):
+    question_id: int
+
+
 def create_article(db: Session, article_create: ArticleCreate,
                    user_validation: User):
     db_question = Article(amount=article_create.amount,
@@ -72,4 +76,12 @@ def get_article(db: Session, article_id: int):
 
 def delete_question(db: Session, db_article: Article):
     db.delete(db_article)
+    db.commit()
+
+
+def update_question(db: Session, db_article: Article,
+                    article_update: Article):
+    db_article.detail = article_update.detail
+    db_article.amount = article_update.amount
+    db.add(db_article)
     db.commit()

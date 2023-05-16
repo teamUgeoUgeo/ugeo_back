@@ -27,9 +27,22 @@ def post_article(_article_create: article.ArticleCreate,
                            user_validation=current_user)
 
 
-@router.patch("/{article_id}", summary="게시글 수정", tags=['Article'])
-def edit_article():
-    pass
+@router.put("/", status_code=status.HTTP_204_NO_CONTENT, summary="게시글 수정", tags=['Article'])
+def edit_article(_article_update: article.QuestionUpdate,
+                 db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
+
+    db_article = article.get_article(db,
+                                     article_id=_article_update.question_id)
+    if not db_article:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을수 없습니다.")
+    if current_user.id != db_article.user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="수정 권한이 없습니다.")
+    article.update_question(db=db,
+                            db_article=db_article,
+                            article_update=_article_update)
 
 
 @router.delete("/{article_id:int}",
