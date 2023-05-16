@@ -68,3 +68,8 @@ def get_article_list(db: Session, user_id: int):
 def get_article(db: Session, article_id: int):
     article = db.query(Article).get(article_id)
     return article
+
+
+def delete_question(db: Session, db_article: Article):
+    db.delete(db_article)
+    db.commit()
