@@ -63,3 +63,8 @@ def get_article_list(db: Session, user_id: int):
         }
         output_response.append(converted_response)
     return output_response
+
+
+def get_article(db: Session, article_id: int):
+    article = db.query(Article).get(article_id)
+    return article
