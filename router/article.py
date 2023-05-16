@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -32,6 +32,18 @@ def edit_article():
     pass
 
 
-@router.delete("/{article_id}", summary="게시글 삭제", tags=['Article'])
-def delete_article():
-    pass
+@router.delete("/{article_id:int}",
+               status_code=status.HTTP_204_NO_CONTENT,
+               summary="게시글 삭제",
+               tags=['Article'])
+def delete_article(article_id: int,
+                   db: Session = Depends(get_db),
+                   current_user: User = Depends(get_current_user)):
+    db_article = article.get_article(db, article_id=article_id)
+    if not db_article:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을수 없습니다.")
+    if current_user.id != db_article.user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="삭제 권한이 없습니다.")
+    article.delete_question(db=db, db_article=db_article)
