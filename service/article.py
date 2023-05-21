@@ -36,8 +36,8 @@ class ArticleCreate(BaseModel):
         return v
 
 
-class QuestionUpdate(ArticleCreate):
-    question_id: int
+class ArticleUpdate(ArticleCreate):
+    article_id: int
 
 
 def create_article(db: Session, article_create: ArticleCreate,
@@ -80,7 +80,7 @@ def delete_question(db: Session, db_article: Article):
 
 
 def update_question(db: Session, db_article: Article,
-                    article_update: Article):
+                    article_update: ArticleUpdate):
     db_article.detail = article_update.detail
     db_article.amount = article_update.amount
     db.add(db_article)
