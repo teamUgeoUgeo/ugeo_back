@@ -17,8 +17,17 @@ router = APIRouter(
 
 
 @router.post("/login", response_model=Token, tags=['AUTH'], summary="로그인")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
+def login_for_access_token(email: str,
+                           password: str,
                            db: Session = Depends(get_db)):
+
+    form_data: OAuth2PasswordRequestForm = OAuth2PasswordRequestForm(
+        username=email,
+        password=password,
+        grant_type="",
+        scope="",
+        client_id="",
+        client_secret="")
 
     user = get_user(db, EmailStr(form_data.username))
     if not user or not pwd_context.verify(form_data.password, user.password):
