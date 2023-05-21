@@ -2,8 +2,8 @@ from datetime import timedelta, datetime
 
 from fastapi import APIRouter
 from fastapi import Depends, status, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
@@ -14,6 +14,7 @@ from config import const
 router = APIRouter(
     prefix="/api/user",
 )
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/login")
 
 
 @router.post("/login", response_model=Token, tags=['AUTH'], summary="로그인")
@@ -49,3 +50,26 @@ def user_create(_user_create: Validation, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="이미 존재하는 사용자입니다.")
     create(db=db, validation=_user_create)
+
+
+def get_current_user(token: str = Depends(oauth2_scheme),
+                     db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token,
+                             const.SECRET_KEY,
+                             algorithms=[const.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    else:
+        user = get_user(db, email=email)
+        if user is None:
+            raise credentials_exception
+        return user
