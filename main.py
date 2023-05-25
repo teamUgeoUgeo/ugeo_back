@@ -11,7 +11,11 @@ tags_metadata = [{
     "description": "게시글 CRUD를 다룹니다."
 }]
 
-app = FastAPI(title="Ugeo API", openapi_tags=tags_metadata)
+app = FastAPI(title="Ugeo API",
+              openapi_tags=tags_metadata,
+              docs_url='/api/docs',
+              redoc_url='/api/redoc',
+              openapi_url='/api/openapi.json')
 
 origins = ["*"]
 
