@@ -16,15 +16,18 @@ def get_article_list(db: Session = Depends(get_db),
 
 
 @router.post("/",
-             status_code=status.HTTP_204_NO_CONTENT,
+             status_code=status.HTTP_201_CREATED,
              summary="게시글 작성",
              tags=['Article'])
 def post_article(_article_create: article.ArticleCreate,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
-    article.create_article(db=db,
-                           article_create=_article_create,
-                           user_validation=current_user)
+    return {
+        'article_id':
+        article.create_article(db=db,
+                               article_create=_article_create,
+                               user_validation=current_user)
+    }
 
 
 @router.put("/", status_code=status.HTTP_204_NO_CONTENT, summary="게시글 수정", tags=['Article'])

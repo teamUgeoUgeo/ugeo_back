@@ -42,12 +42,15 @@ class ArticleUpdate(ArticleCreate):
 
 def create_article(db: Session, article_create: ArticleCreate,
                    user_validation: User):
-    db_question = Article(amount=article_create.amount,
+    db_article = Article(amount=article_create.amount,
         detail=article_create.detail,
         create_at=datetime.datetime.now(),
         user=user_validation)
-    db.add(db_question)
+    db.add(db_article)
     db.commit()
+    db.flush()
+
+    return db_article.id
 
 
 def get_article_list(db: Session, user_id: int):
