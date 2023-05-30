@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -43,8 +43,10 @@ def login_for_test(form_data: OAuth2PasswordRequestForm = Depends(),
 
 
 @router.post("/login", response_model=Token, tags=['AUTH'], summary="로그인")
-def login_for_access_token(email: str,
-                           password: str,
+def login_for_access_token(email: str = Body(description='user email',
+                                             example='user@example.com'),
+                           password: str = Body(description='user password',
+                                                example='sample_password'),
                            db: Session = Depends(get_db)):
 
     form_data: OAuth2PasswordRequestForm = OAuth2PasswordRequestForm(
