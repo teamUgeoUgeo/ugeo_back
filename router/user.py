@@ -69,7 +69,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
     except JWTError:
         raise credentials_exception
     else:
-        user = get_user(db, email=email)
+        user = get_user(db, email=EmailStr(email))
         if user is None:
             raise credentials_exception
         return user
