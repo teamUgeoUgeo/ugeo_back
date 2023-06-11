@@ -23,6 +23,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     email: EmailStr
+    username: str
+    nickname: str
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
