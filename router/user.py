@@ -94,4 +94,6 @@ def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
         "access_token": access_token,
         "token_type": "bearer",
         "email": user.email,
+        "nickname": user.nickname,
+        "username": user.username
     }
