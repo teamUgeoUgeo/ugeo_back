@@ -2,6 +2,8 @@ from logging.config import fileConfig
 import re
 
 from sqlalchemy import engine_from_config, create_engine
+from sqlalchemy_utils import database_exists, create_database
+
 from sqlalchemy import pool
 from alembic import context
 
@@ -47,8 +49,11 @@ def run_migrations_offline() -> None:
         "DB_URL": env.DB_URL,
     }
 
-    url = config.get_main_option("sqlalchemy.url")
-    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], url)
+    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], config.get_main_option("sqlalchemy.url"))
+
+    if not database_exists(url):
+        create_database(url, encoding='utf8mb4')
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -74,6 +79,9 @@ def run_migrations_online() -> None:
     }
 
     url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], config.get_main_option("sqlalchemy.url"))
+
+    if not database_exists(url):
+        create_database(url, encoding='utf8mb4')
 
     connectable = create_engine(url)
 
