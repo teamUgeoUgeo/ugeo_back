@@ -18,7 +18,7 @@ class Article(Base):
     __tablename__ = "article"
 
     id = Column(Integer, primary_key=True)
-    amount = Column(Integer, unique=True, nullable=False)
+    amount = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     create_at = Column(DateTime, nullable=False)
     detail = Column(String(255), unique=True, nullable=False)

@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -14,12 +14,39 @@ from config import const
 router = APIRouter(
     prefix="/api/user",
 )
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
+
+
+@router.post("/test_login", response_model=Token, tags=['AUTH'], summary="로그인")
+def login_for_test(form_data: OAuth2PasswordRequestForm = Depends(),
+                           db: Session = Depends(get_db)):
+
+    user = get_user(db, EmailStr(form_data.username))
+    if not user or not pwd_context.verify(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    data = {
+        "sub": user.email,
+        "exp": datetime.utcnow() + timedelta(minutes=const.ACCESS_TOKEN_EXPIRE_MINUTES)
+    }
+    access_token = jwt.encode(data, const.SECRET_KEY, algorithm=const.ALGORITHM)
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "email": user.email
+    }
 
 
 @router.post("/login", response_model=Token, tags=['AUTH'], summary="로그인")
-def login_for_access_token(email: str,
-                           password: str,
+def login_for_access_token(email: str = Body(description='user email',
+                                             example='user@example.com'),
+                           password: str = Body(description='user password',
+                                                example='sample_password'),
                            db: Session = Depends(get_db)):
 
     form_data: OAuth2PasswordRequestForm = OAuth2PasswordRequestForm(
