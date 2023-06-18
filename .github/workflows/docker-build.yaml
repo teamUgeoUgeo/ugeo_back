@@ -3,8 +3,7 @@ name: Docker Image CI
 on:
   push:
     tags:
-
-
+      - dev-*
 
 jobs:
   build:
@@ -27,12 +26,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_ID }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      -
+        name: Choose image tag
+        run: |
+          echo "GITHUB_REF_TYPE=$GITHUB_REF_TYPE"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          if [[ "$GITHUB_REF_TYPE" = "tag" ]]; then
+            IMAGE_TAG=$GITHUB_REF_NAME
+            echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          else
+            IMAGE_TAG=$(git rev-parse --short $GITHUB_SHA)
+            echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          fi
+          echo "IMAGE_TAG=$IMAGE_TAG"
+
       - name: Build container image
         run: |
-          IMAGE_NAME=${{secrets.DOCKERHUB_ID}}/ugeo_back
+          IMAGE_NAME=${{secrets.DOCKERHUB_ID}}/ugeo_back:$IMAGE_TAG
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=$IMAGE_NAME"
           docker build -t $IMAGE_NAME -f run.Dockerfile .
-          echo
+
       - name: Push container image
         run: |
-          docker push ${{secrets.DOCKERHUB_ID}}/ugeo_back
+          docker push $IMAGE_NAME
           echo "Pushed container image: $IMAGE_NAME"
