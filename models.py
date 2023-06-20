@@ -23,3 +23,15 @@ class Article(Base):
     create_at = Column(DateTime, nullable=False)
     detail = Column(String(255), unique=True, nullable=False)
     user = relationship("User", backref="article_users")
+
+class Comment(Base):
+    __tablename__ = "comment"
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    article_id = Column(Integer, ForeignKey("article.id"), nullable=False)
+    create_at = Column(DateTime)
+    detail = Column(String(140))
+    user = relationship("User")
+    article = relationship("Article")
+
