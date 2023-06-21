@@ -2,6 +2,7 @@ from pydantic import BaseModel, validator, EmailStr
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
+import models
 from models import User
 
 
@@ -22,6 +23,8 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     email: EmailStr
+    username: str
+    nickname: str
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,8 +46,7 @@ def get_existing_user(db: Session, validation: Validation):
     ).first()
 
 
-def get_user(db: Session, email: EmailStr):
-
+def get_user(db: Session, email: EmailStr) -> models.User | None:
     return db.query(User).filter(User.email == email).first()
 
 
