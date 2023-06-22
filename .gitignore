@@ -398,3 +398,4 @@ pyrightconfig.json
 .idea
 *.db
 
+db
