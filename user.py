@@ -19,6 +19,16 @@ class Validation(BaseModel):
         return value
 
 
+class EmailValid(BaseModel):
+    email: EmailStr
+
+    @validator('email')
+    def not_empty(cls, value):
+        if not value or not value.strip():
+            raise ValueError('빈 값은 허용되지 않습니다.')
+        return value
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -49,5 +59,7 @@ def get_existing_user(db: Session, validation: Validation):
 def get_user(db: Session, email: EmailStr) -> models.User | None:
     return db.query(User).filter(User.email == email).first()
 
+def get_exist_email(db: Session, validation: Validation):
+    return db.query(User).filter(User.email == validation.email).first()
 
 

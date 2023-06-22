@@ -52,6 +52,19 @@ def user_create(_user_create: Validation, db: Session = Depends(get_db)):
     create(db=db, validation=_user_create)
 
 
+@router.post("/check_email",
+             status_code=status.HTTP_200_OK,
+             tags=['AUTH'],
+             summary="이메일 중복확인")
+def check_email(_email: EmailValid, db: Session = Depends(get_db)):
+    is_exist = get_exist_email(db, validation=_email)
+    if is_exist:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="사용 중인 이메일 입니다")
+
+    return
+
+
 def get_current_user(token: str = Depends(oauth2_scheme),
                      db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
