@@ -58,6 +58,12 @@ def user_create(_user_create: Validation, db: Session = Depends(get_db)):
              summary="이메일 중복확인")
 def check_email(_email: EmailValid, db: Session = Depends(get_db)):
     is_exist = get_exist_email(db, validation=_email)
+    is_exist = get_exist_email(db, _email=_email)
+    if is_exist:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="사용 중인 이메일 입니다")
+
+    return
     if is_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="사용 중인 이메일 입니다")
