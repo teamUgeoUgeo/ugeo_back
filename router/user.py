@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from database import get_db
-from user import Validation, create, get_existing_user, get_user, pwd_context, Token, EmailValid, get_exist_email
+from user import Validation, create, get_existing_user, get_user, pwd_context, Token, EmailValid, get_exist_email, get_exist_username, UsernameValid
 from config import const
 
 router = APIRouter(
@@ -57,13 +57,20 @@ def user_create(_user_create: Validation, db: Session = Depends(get_db)):
              tags=['AUTH'],
              summary="이메일 중복확인")
 def check_email(_email: EmailValid, db: Session = Depends(get_db)):
-    is_exist = get_exist_email(db, validation=_email)
     is_exist = get_exist_email(db, _email=_email)
     if is_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="사용 중인 이메일 입니다")
 
     return
+
+
+@router.post("/check_username",
+             status_code=status.HTTP_200_OK,
+             tags=['AUTH'],
+             summary="유저네임 중복확인")
+def check_username(_username: UsernameValid, db: Session = Depends(get_db)):
+    is_exist = get_exist_username(db, _username=_username)
     if is_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="사용 중인 이메일 입니다")
