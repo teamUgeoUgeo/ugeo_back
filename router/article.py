@@ -30,13 +30,15 @@ def post_article(_article_create: article.ArticleCreate,
     }
 
 
-@router.put("/", status_code=status.HTTP_204_NO_CONTENT, summary="게시글 수정", tags=['Article'])
+@router.put("/",
+            status_code=status.HTTP_204_NO_CONTENT,
+            summary="게시글 수정",
+            tags=['Article'])
 def edit_article(_article_update: article.ArticleUpdate,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
 
-    db_article = article.get_article(db,
-                                     article_id=_article_update.article_id)
+    db_article = article.get_article(db, article_id=_article_update.article_id)
     if not db_article:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="데이터를 찾을수 없습니다.")

@@ -11,15 +11,13 @@ from database import get_db
 from user import Validation, create, get_existing_user, get_user, pwd_context, Token, EmailValid, get_exist_email, get_exist_username, UsernameValid
 from config import const
 
-router = APIRouter(
-    prefix="/api/user",
-)
+router = APIRouter(prefix="/api/user", )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
 
 
 @router.post("/test_login", response_model=Token, tags=['AUTH'], summary="로그인")
 def login_for_test(form_data: OAuth2PasswordRequestForm = Depends(),
-                           db: Session = Depends(get_db)):
+                   db: Session = Depends(get_db)):
 
     return _create_token(db, form_data)
 
@@ -42,7 +40,10 @@ def login_for_access_token(email: str = Body(description='user email',
     return _create_token(db, form_data)
 
 
-@router.post("/create", status_code=status.HTTP_204_NO_CONTENT, tags=['AUTH'], summary="회원가입")
+@router.post("/create",
+             status_code=status.HTTP_204_NO_CONTENT,
+             tags=['AUTH'],
+             summary="회원가입")
 def user_create(_user_create: Validation, db: Session = Depends(get_db)):
     user = get_existing_user(db, validation=_user_create)
     if user:
@@ -111,10 +112,15 @@ def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
         )
 
     data = {
-        "sub": user.email,
-        "exp": datetime.utcnow() + timedelta(minutes=const.ACCESS_TOKEN_EXPIRE_MINUTES)
+        "sub":
+        user.email,
+        "exp":
+        datetime.utcnow() +
+        timedelta(minutes=const.ACCESS_TOKEN_EXPIRE_MINUTES)
     }
-    access_token = jwt.encode(data, const.SECRET_KEY, algorithm=const.ALGORITHM)
+    access_token = jwt.encode(data,
+                              const.SECRET_KEY,
+                              algorithm=const.ALGORITHM)
 
     return {
         "access_token": access_token,

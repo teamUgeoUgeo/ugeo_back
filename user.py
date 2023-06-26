@@ -60,10 +60,8 @@ def create(db: Session, validation: Validation):
 
 
 def get_existing_user(db: Session, validation: Validation):
-    return db.query(User).filter(
-        (User.username == validation.username) |
-        (User.email == validation.email)
-    ).first()
+    return db.query(User).filter((User.username == validation.username)
+                                 | (User.email == validation.email)).first()
 
 
 def get_user(db: Session, email: EmailStr) -> models.User | None:
@@ -76,5 +74,3 @@ def get_exist_email(db: Session, _email: EmailValid):
 
 def get_exist_username(db: Session, _username: UsernameValid):
     return db.query(User).filter(User.username == _username.username).first()
-
-
