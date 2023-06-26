@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from database import get_db
-from user import Validation, create, get_existing_user, get_user, pwd_context, Token
+from user import Validation, create, get_existing_user, get_user, pwd_context, Token, EmailValid, get_exist_email
 from config import const
 
 router = APIRouter(
