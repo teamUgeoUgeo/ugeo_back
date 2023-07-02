@@ -14,6 +14,12 @@ router = APIRouter(prefix="/api/comment", )
 def get_article_list():
     return {"key": 'value'}
 
+@router.get("/{article_id:int}", tags=['Comment'], summary="댓글 목록 조회")
+def get_comment_list(article_id: int,
+                     db: Session = Depends(get_db),
+                     current_user: User = Depends(get_current_user)):
+    return comment.get_comment_list(db, article_id=article_id, user_id=current_user.id)
+
 @router.post("/",
              status_code=status.HTTP_204_NO_CONTENT,
              summary="댓글 작성",

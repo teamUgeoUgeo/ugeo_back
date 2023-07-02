@@ -31,6 +31,9 @@ class CommentCreate(BaseModel):
             raise ValueError('게시글이 없습니다.')
         return v
 
+class CommentRead(BaseModel):
+    article_id: int
+
 def create_comment(db: Session, comment_create: CommentCreate,
                    user_validation: User, article_validation: Article):
     
@@ -44,3 +47,23 @@ def create_comment(db: Session, comment_create: CommentCreate,
     db.flush()
 
     return db_comment.id
+
+def get_comment_list(db: Session, article_id: int, user_id: int):
+    responses = db.query(Comment, User.username, User.nickname).order_by(desc(Comment.create_at)
+        ).filter(Article.id==Comment.article_id).filter(Comment.article_id==article_id
+        ).filter(User.id==Comment.user_id).filter(Comment.user_id==user_id).all()
+    output_response = []
+    for response in responses:
+        converted_response = {
+            'id': response[0].id,
+            'detail': response[0].detail,
+            'create_at': response[0].create_at,
+            'username': response[1],
+            'nickname': response[2]
+        }
+        output_response.append(converted_response)
+    return output_response
+
+def get_comment(db: Session, comment_id: int):
+    comment = db.query(Comment).get(comment_id)
+    return comment
