@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from database import get_db
-from user import Validation, create, get_existing_user, get_user, pwd_context, Token, EmailValid, get_exist_email, get_exist_username, UsernameValid
+from user import Validation, create, get_existing_user, get_user_by_email, pwd_context, Token, EmailValid, get_exist_email, get_exist_username, UsernameValid, get_user_by_id, update
 from config import const
+from models import User
 
 router = APIRouter(prefix="/api/user", )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
@@ -85,6 +86,28 @@ def check_email(_email: EmailValid, db: Session = Depends(get_db)):
     if is_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="사용 중인 이메일 입니다")
+
+    return
+
+
+@router.put("/",
+            status_code=status.HTTP_204_NO_CONTENT,
+            summary="유저 정보 수정",
+            tags=['AUTH'])
+def edit_article(_user_update: Validation,
+                 db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
+
+    db_user = get_user_by_id(db, id=current_user.id)
+
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을수 없습니다.")
+    if current_user.id != db_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="수정 권한이 없습니다.")
+
+    update(db=db, db_user=db_user, user_update=_user_update)
 
     return
 

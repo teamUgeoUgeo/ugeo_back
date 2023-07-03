@@ -78,3 +78,12 @@ def get_exist_email(db: Session, _email: EmailValid):
 
 def get_exist_username(db: Session, _username: UsernameValid):
     return db.query(User).filter(User.username == _username.username).first()
+
+
+def update(db: Session, db_user: User, user_update: Validation):
+    db_user.email = user_update.email
+    db_user.username = user_update.username
+    db_user.nickname = user_update.nickname
+    db_user.password = pwd_context.hash(user_update.password)
+    db.add(db_user)
+    db.commit()
