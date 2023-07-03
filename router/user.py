@@ -103,7 +103,7 @@ def check_username(_username: UsernameValid, db: Session = Depends(get_db)):
 
 
 def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
-    user = get_user(db, EmailStr(form_data.username))
+    user = get_user_by_email(db, EmailStr(form_data.username))
     if not user or not pwd_context.verify(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

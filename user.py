@@ -64,7 +64,7 @@ def get_existing_user(db: Session, validation: Validation):
                                  | (User.email == validation.email)).first()
 
 
-def get_user(db: Session, email: EmailStr) -> models.User | None:
+def get_user_by_email(db: Session, email: EmailStr) -> models.User | None:
     return db.query(User).filter(User.email == email).first()
 
 
