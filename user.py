@@ -68,6 +68,10 @@ def get_user(db: Session, email: EmailStr) -> models.User | None:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_id(db: Session, id: int) -> models.User | None:
+    return db.query(User).filter(User.id == id).first()
+
+
 def get_exist_email(db: Session, _email: EmailValid):
     return db.query(User).filter(User.email == _email.email).first()
 
