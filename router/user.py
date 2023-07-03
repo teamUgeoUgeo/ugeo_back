@@ -15,6 +15,29 @@ router = APIRouter(prefix="/api/user", )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
 
 
+def get_current_user(token: str = Depends(oauth2_scheme),
+                     db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token,
+                             const.SECRET_KEY,
+                             algorithms=[const.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    else:
+        user = get_user_by_email(db, email=EmailStr(email))
+        if user is None:
+            raise credentials_exception
+        return user
+
+
 @router.post("/test_login", response_model=Token, tags=['AUTH'], summary="로그인")
 def login_for_test(form_data: OAuth2PasswordRequestForm = Depends(),
                    db: Session = Depends(get_db)):
@@ -77,29 +100,6 @@ def check_username(_username: UsernameValid, db: Session = Depends(get_db)):
                             detail="사용 중인 이메일 입니다")
 
     return
-
-
-def get_current_user(token: str = Depends(oauth2_scheme),
-                     db: Session = Depends(get_db)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token,
-                             const.SECRET_KEY,
-                             algorithms=[const.ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    else:
-        user = get_user(db, email=EmailStr(email))
-        if user is None:
-            raise credentials_exception
-        return user
 
 
 def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
