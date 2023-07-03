@@ -43,9 +43,9 @@ class ArticleUpdate(ArticleCreate):
 def create_article(db: Session, article_create: ArticleCreate,
                    user_validation: User):
     db_article = Article(amount=article_create.amount,
-        detail=article_create.detail,
-        create_at=datetime.datetime.now(),
-        user=user_validation)
+                         detail=article_create.detail,
+                         create_at=datetime.datetime.now(),
+                         user=user_validation)
     db.add(db_article)
     db.commit()
     db.flush()
@@ -54,8 +54,9 @@ def create_article(db: Session, article_create: ArticleCreate,
 
 
 def get_article_list(db: Session, user_id: int):
-    responses = db.query(Article, User.username, User.nickname).order_by(desc(
-        Article.create_at)).filter(User.id==Article.user_id).filter(Article.user_id==user_id).all()
+    responses = db.query(Article, User.username, User.nickname).order_by(
+        desc(Article.create_at)).filter(User.id == Article.user_id).filter(
+            Article.user_id == user_id).all()
 
     output_response = []
     for response in responses:
@@ -66,7 +67,6 @@ def get_article_list(db: Session, user_id: int):
             'create_at': response[0].create_at,
             'username': response[1],
             'nickname': response[2]
-
         }
         output_response.append(converted_response)
     return output_response

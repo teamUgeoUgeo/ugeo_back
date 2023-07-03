@@ -49,7 +49,8 @@ def run_migrations_offline() -> None:
         "DB_URL": env.DB_URL,
     }
 
-    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], config.get_main_option("sqlalchemy.url"))
+    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)],
+                 config.get_main_option("sqlalchemy.url"))
 
     if not database_exists(url):
         create_database(url, encoding='utf8mb4')
@@ -78,7 +79,8 @@ def run_migrations_online() -> None:
         "DB_URL": env.DB_URL,
     }
 
-    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], config.get_main_option("sqlalchemy.url"))
+    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)],
+                 config.get_main_option("sqlalchemy.url"))
 
     if not database_exists(url):
         create_database(url, encoding='utf8mb4')
@@ -86,9 +88,8 @@ def run_migrations_online() -> None:
     connectable = create_engine(url)
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection,
+                          target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
