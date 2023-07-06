@@ -64,8 +64,12 @@ def get_existing_user(db: Session, validation: Validation):
                                  | (User.email == validation.email)).first()
 
 
-def get_user(db: Session, email: EmailStr) -> models.User | None:
+def get_user_by_email(db: Session, email: EmailStr) -> models.User | None:
     return db.query(User).filter(User.email == email).first()
+
+
+def get_user_by_id(db: Session, id: int) -> models.User | None:
+    return db.query(User).filter(User.id == id).first()
 
 
 def get_exist_email(db: Session, _email: EmailValid):
@@ -74,3 +78,12 @@ def get_exist_email(db: Session, _email: EmailValid):
 
 def get_exist_username(db: Session, _username: UsernameValid):
     return db.query(User).filter(User.username == _username.username).first()
+
+
+def update(db: Session, db_user: User, user_update: Validation):
+    db_user.email = user_update.email
+    db_user.username = user_update.username
+    db_user.nickname = user_update.nickname
+    db_user.password = pwd_context.hash(user_update.password)
+    db.add(db_user)
+    db.commit()
