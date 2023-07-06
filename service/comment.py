@@ -46,7 +46,7 @@ def create_comment(db: Session, comment_create: CommentCreate,
     db.commit()
     db.flush()
 
-    return db_comment.id
+    return db_comment
 
 def get_comment_list(db: Session, article_id: int, user_id: int):
     responses = db.query(Comment, User.username, User.nickname).order_by(desc(Comment.create_at)

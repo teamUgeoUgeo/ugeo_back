@@ -1,4 +1,5 @@
-from fastapi import status, APIRouter, Depends, HTTPException
+from fastapi import status, APIRouter, Depends, HTTPException, Response
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -21,7 +22,7 @@ def get_comment_list(article_id: int,
     return comment.get_comment_list(db, article_id=article_id, user_id=current_user.id)
 
 @router.post("/",
-             status_code=status.HTTP_204_NO_CONTENT,
+             status_code=status.HTTP_201_CREATED,
              summary="댓글 작성",
              tags=['Comment'])
 def post_comment(_comment_create: comment.CommentCreate,
@@ -33,8 +34,10 @@ def post_comment(_comment_create: comment.CommentCreate,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="게시글이 존재하지 않습니다.")
     
-    db_comment = comment.create_comment(db=db,
+    db_comment: comment = comment.create_comment(db=db,
                                         comment_create=_comment_create,
                                         user_validation=current_user,
                                         article_validation=db_article)
+
+    return {'created_at' : db_comment.create_at, 'comment_id': db_comment.id}
     
