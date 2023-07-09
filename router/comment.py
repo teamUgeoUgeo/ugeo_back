@@ -8,12 +8,8 @@ from router.user import get_current_user
 from user import Validation, get_user
 from service import comment, article
 
-
 router = APIRouter(prefix="/api/comment", )
 
-@router.get("/api_test", tags=['Comment'], summary="라우터 테스트")
-def get_article_list():
-    return {"key": 'value'}
 
 @router.get("/{article_id:int}", tags=['Comment'], summary="댓글 목록 조회")
 def get_comment_list(article_id: int,
