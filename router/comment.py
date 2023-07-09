@@ -15,7 +15,10 @@ router = APIRouter(prefix="/api/comment", )
 def get_comment_list(article_id: int,
                      db: Session = Depends(get_db),
                      current_user: User = Depends(get_current_user)):
-    return comment.get_comment_list(db, article_id=article_id, user_id=current_user.id)
+    return comment.get_comment_list(db,
+                                    article_id=article_id,
+                                    user_id=current_user.id)
+
 
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
@@ -24,19 +27,21 @@ def get_comment_list(article_id: int,
 def post_comment(_comment_create: comment.CommentCreate,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
-    
+
     db_article = article.get_article(db, article_id=_comment_create.article_id)
     if not db_article:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="게시글이 존재하지 않습니다.")
-    
-    db_comment: comment = comment.create_comment(db=db,
-                                        comment_create=_comment_create,
-                                        user_validation=current_user,
-                                        article_validation=db_article)
 
-    return {'created_at' : db_comment.create_at, 'comment_id': db_comment.id}
-    @router.put("/{comment_id: int}",
+    db_comment: comment = comment.create_comment(
+        db=db,
+        comment_create=_comment_create,
+        user_validation=current_user,
+        article_validation=db_article)
+
+    return {'created_at': db_comment.create_at, 'comment_id': db_comment.id}
+
+
 @router.put("/{comment_id: int}",
             status_code=status.HTTP_204_NO_CONTENT,
             summary="댓글 수정",
@@ -55,6 +60,8 @@ def edit_comment(comment_id: int,
     comment.update_comment(db=db,
                            db_comment=db_comment,
                            comment_datail=comment_detail)
+
+
 @router.delete("/{comment_id:int}",
                status_code=status.HTTP_204_NO_CONTENT,
                summary="댓글 삭제",
