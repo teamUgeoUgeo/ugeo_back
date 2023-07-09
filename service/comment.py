@@ -67,3 +67,7 @@ def get_comment_list(db: Session, article_id: int, user_id: int):
 def get_comment(db: Session, comment_id: int):
     comment = db.query(Comment).get(comment_id)
     return comment
+def update_comment(db: Session, db_comment: Comment, comment_datail: str):
+    db_comment.detail = comment_datail
+    db.add(db_comment)
+    db.commit()

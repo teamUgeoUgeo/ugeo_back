@@ -1,4 +1,4 @@
-from fastapi import status, APIRouter, Depends, HTTPException, Response
+from fastapi import status, APIRouter, Depends, HTTPException, Response, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -36,4 +36,22 @@ def post_comment(_comment_create: comment.CommentCreate,
                                         article_validation=db_article)
 
     return {'created_at' : db_comment.create_at, 'comment_id': db_comment.id}
-    
+    @router.put("/{comment_id: int}",
+@router.put("/{comment_id: int}",
+            status_code=status.HTTP_204_NO_CONTENT,
+            summary="댓글 수정",
+            tags=['Comment'])
+def edit_comment(comment_id: int,
+                 comment_detail=Query(),
+                 db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
+    db_comment = comment.get_comment(db, comment_id=comment_id)
+    if not db_comment:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을 수 없습니다.")
+    if current_user.id != db_comment.user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="수정 권한이 없습니다.")
+    comment.update_comment(db=db,
+                           db_comment=db_comment,
+                           comment_datail=comment_detail)
