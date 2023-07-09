@@ -55,3 +55,18 @@ def edit_comment(comment_id: int,
     comment.update_comment(db=db,
                            db_comment=db_comment,
                            comment_datail=comment_detail)
+@router.delete("/{comment_id:int}",
+               status_code=status.HTTP_204_NO_CONTENT,
+               summary="댓글 삭제",
+               tags=['Comment'])
+def delete_comment(comment_id: int,
+                   db: Session = Depends(get_db),
+                   current_user: User = Depends(get_current_user)):
+    db_comment = comment.get_comment(db, comment_id=comment_id)
+    if not db_comment:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을 수 없습니다.")
+    if current_user.id != db_comment.user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="삭제 권한이 없습니다.")
+    comment.delete_comment(db=db, db_comment=db_comment)

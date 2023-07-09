@@ -71,3 +71,6 @@ def update_comment(db: Session, db_comment: Comment, comment_datail: str):
     db_comment.detail = comment_datail
     db.add(db_comment)
     db.commit()
+def delete_comment(db: Session, db_comment: Comment):
+    db.delete(db_comment)
+    db.commit()
