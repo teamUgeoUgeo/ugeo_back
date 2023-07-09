@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from router import user, article
+from router import user, article, comment
 
 tags_metadata = [{
     "name": "AUTH",
@@ -29,3 +29,4 @@ app.add_middleware(
 
 app.include_router(user.router)
 app.include_router(article.router)
+app.include_router(comment.router)
