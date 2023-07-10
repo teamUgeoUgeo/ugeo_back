@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from database import get_db
-from user import Validation, create, get_existing_user, get_user_by_email, pwd_context, Token, EmailValid, get_exist_email, get_exist_username, UsernameValid, get_user_by_id, update
+from validation import user as user_validation
+from service import user as user_service
 from config import const
 from models import User
 
@@ -33,20 +34,26 @@ def get_current_user(token: str = Depends(oauth2_scheme),
     except JWTError:
         raise credentials_exception
     else:
-        user = get_user_by_email(db, email=EmailStr(email))
+        user = user_service.get_user_by_email(db, email=EmailStr(email))
         if user is None:
             raise credentials_exception
         return user
 
 
-@router.post("/test_login", response_model=Token, tags=['AUTH'], summary="로그인")
+@router.post("/test_login",
+             response_model=user_validation.Token,
+             tags=['AUTH'],
+             summary="로그인")
 def login_for_test(form_data: OAuth2PasswordRequestForm = Depends(),
                    db: Session = Depends(get_db)):
 
     return _create_token(db, form_data)
 
 
-@router.post("/login", response_model=Token, tags=['AUTH'], summary="로그인")
+@router.post("/login",
+             response_model=user_validation.Token,
+             tags=['AUTH'],
+             summary="로그인")
 def login_for_access_token(email: str = Body(description='user email',
                                              example='user@example.com'),
                            password: str = Body(description='user password',
@@ -68,21 +75,23 @@ def login_for_access_token(email: str = Body(description='user email',
              status_code=status.HTTP_204_NO_CONTENT,
              tags=['AUTH'],
              summary="회원가입")
-def user_create(_user_create: Validation, db: Session = Depends(get_db)):
-    user = get_existing_user(db, validation=_user_create)
+def user_create(_user_create: user_validation.Validation,
+                db: Session = Depends(get_db)):
+    user = user_service.get_existing_user(db, validation=_user_create)
     if user:
         from fastapi import HTTPException
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="이미 존재하는 사용자입니다.")
-    create(db=db, validation=_user_create)
+    user_service.create(db=db, validation=_user_create)
 
 
 @router.post("/check_email",
              status_code=status.HTTP_200_OK,
              tags=['AUTH'],
              summary="이메일 중복확인")
-def check_email(_email: EmailValid, db: Session = Depends(get_db)):
-    is_exist = get_exist_email(db, _email=_email)
+def check_email(_email: user_validation.EmailValid,
+                db: Session = Depends(get_db)):
+    is_exist = user_service.get_exist_email(db, _email=_email)
     if is_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="사용 중인 이메일 입니다")
@@ -94,11 +103,11 @@ def check_email(_email: EmailValid, db: Session = Depends(get_db)):
             status_code=status.HTTP_204_NO_CONTENT,
             summary="유저 정보 수정",
             tags=['AUTH'])
-def edit_article(_user_update: Validation,
+def edit_article(_user_update: user_validation.Validation,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
 
-    db_user = get_user_by_id(db, id=current_user.id)
+    db_user = user_service.get_user_by_id(db, id=current_user.id)
 
     if not db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -107,7 +116,7 @@ def edit_article(_user_update: Validation,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="수정 권한이 없습니다.")
 
-    update(db=db, db_user=db_user, user_update=_user_update)
+    user_service.update(db=db, db_user=db_user, user_update=_user_update)
 
     return
 
@@ -116,8 +125,9 @@ def edit_article(_user_update: Validation,
              status_code=status.HTTP_200_OK,
              tags=['AUTH'],
              summary="유저네임 중복확인")
-def check_username(_username: UsernameValid, db: Session = Depends(get_db)):
-    is_exist = get_exist_username(db, _username=_username)
+def check_username(_username: user_validation.UsernameValid,
+                   db: Session = Depends(get_db)):
+    is_exist = user_service.get_exist_username(db, _username=_username)
     if is_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="사용 중인 이메일 입니다")
@@ -126,8 +136,9 @@ def check_username(_username: UsernameValid, db: Session = Depends(get_db)):
 
 
 def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
-    user = get_user_by_email(db, EmailStr(form_data.username))
-    if not user or not pwd_context.verify(form_data.password, user.password):
+    user = user_service.get_user_by_email(db, EmailStr(form_data.username))
+    if not user or not user_service.pwd_context.verify(form_data.password,
+                                                       user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",

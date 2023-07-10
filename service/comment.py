@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator
 
 from models import Comment, Article, User
 from service import article
-import user
+from validation import user
 
 
 class Validation(BaseModel):

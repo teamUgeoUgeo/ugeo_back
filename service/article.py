@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, validator
 
 from models import Article, User
-import user
+from validation import user
 
 
 class Validation(BaseModel):

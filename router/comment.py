@@ -1,11 +1,9 @@
-from fastapi import status, APIRouter, Depends, HTTPException, Response, Query
-from fastapi.responses import JSONResponse
+from fastapi import status, APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Comment, User
+from models import User
 from router.user import get_current_user
-from user import Validation, get_user
 from service import comment, article
 
 router = APIRouter(prefix="/api/comment", )
