@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from router import user, article, comment
+from ugeougeo.router import user, article, comment
 
 tags_metadata = [{
     "name": "AUTH",

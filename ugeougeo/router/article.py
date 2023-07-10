@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import Article, User
-from router.user import get_current_user
-from service import article
+from ugeougeo.database import get_db
+from ugeougeo.models import Article, User
+from ugeougeo.router.user import get_current_user
+from ugeougeo.service import article
 
 router = APIRouter(prefix="/api/article", )
 

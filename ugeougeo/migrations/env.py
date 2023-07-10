@@ -7,8 +7,8 @@ from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import pool
 from alembic import context
 
-from ugeougeo import models
-from ugeougeo.config import env
+import models
+from config import env
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

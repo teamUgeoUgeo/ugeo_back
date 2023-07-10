@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy_utils import database_exists, create_database
 
-from config import env
+from ugeougeo.config import env
 
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{env.DB_ID}:{env.DB_PASSWORD}@{env.DB_URL}/ugeougeo"
 

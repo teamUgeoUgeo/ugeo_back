@@ -2,8 +2,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
-from validation import user
-from models import User
+from ugeougeo.validation import user
+from ugeougeo.models import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

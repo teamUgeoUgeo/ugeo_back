@@ -4,8 +4,8 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, validator
 
-from models import Article, User
-from validation import user
+from ugeougeo.models import Article, User
+from ugeougeo.validation import user
 
 
 class Validation(BaseModel):

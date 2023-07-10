@@ -7,11 +7,11 @@ from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
-from database import get_db
-from validation import user as user_validation
-from service import user as user_service
-from config import const
-from models import User
+from ugeougeo.database import get_db
+from ugeougeo.validation import user as user_validation
+from ugeougeo.service import user as user_service
+from ugeougeo.config import const
+from ugeougeo.models import User
 
 router = APIRouter(prefix="/api/user", )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
