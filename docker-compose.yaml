@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+    frontend:
+        image: sigae/ugeo_front:dev-0.1.0
+        ports:
+            - '8400:80'
+        depends_on:
+            - backend
+        environment:
+            - BACKEND_URL=backend:8000
+    backend :
+        build :
+          dockerfile: run.Dockerfile
+        volumes:
+            - ./ugeougeo:/ugeougeo
+        environment:
+            - DB_ID=root
+            - DB_URL=db
+            - DB_PASSWORD=$MYSQL_ROOT_PASSWORD
+        command: sh -c "poetry run alembic upgrade head & poetry run uvicorn ugeougeo.main:app --host 0.0.0.0 --reload"
+        env_file:
+            - "./.env"
+        depends_on:
+            db:
+                condition: service_healthy
+        ports:
+            - "8600:8000"
+    db:
+        image: mysql:8.0
+        env_file:
+            - "./.env"
+        ports:
+            - "3306:3306"
+        command:
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+        volumes:
+            - ./db/data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "mysqladmin" ,"ping", "-u", "root", "--password=$MYSQL_ROOT_PASSWORD"]
+            interval: 15s
+            timeout: 2s
+            retries: 500
