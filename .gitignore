@@ -399,3 +399,4 @@ pyrightconfig.json
 *.db
 
 db
+*.iml
