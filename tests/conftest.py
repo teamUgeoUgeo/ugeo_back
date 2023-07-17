@@ -1,3 +1,5 @@
+import random
+
 from fastapi.testclient import TestClient
 import pytest
 import uuid
@@ -30,3 +32,23 @@ def nickname():
 @pytest.fixture()
 def username():
     return uuid.uuid4().hex[:10]
+
+
+@pytest.fixture()
+def price():
+    return random.randint(1, 2147483647)
+
+
+@pytest.fixture()
+def price2():
+    return random.randint(1, 2147483647)
+
+
+@pytest.fixture()
+def article():
+    return uuid.uuid4().hex[:random.randint(1, 255)]
+
+
+@pytest.fixture()
+def article2():
+    return uuid.uuid4().hex[:random.randint(1, 255)]
