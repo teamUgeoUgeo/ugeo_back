@@ -22,12 +22,11 @@ def get_article_list(db: Session = Depends(get_db),
 def post_article(_article_create: article.ArticleCreate,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
-    return {
-        'article_id':
-        article.create_article(db=db,
-                               article_create=_article_create,
-                               user_validation=current_user)
-    }
+    db_article = article.create_article(db=db,
+                                        article_create=_article_create,
+                                        user_validation=current_user)
+
+    return {'article_id': db_article.id, 'created_at': db_article.create_at}
 
 
 @router.put("/",
@@ -37,7 +36,6 @@ def post_article(_article_create: article.ArticleCreate,
 def edit_article(_article_update: article.ArticleUpdate,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
-
     db_article = article.get_article(db, article_id=_article_update.article_id)
     if not db_article:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
