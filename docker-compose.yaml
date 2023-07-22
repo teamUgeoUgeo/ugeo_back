@@ -14,6 +14,7 @@ services:
           dockerfile: run.Dockerfile
         volumes:
             - ./ugeougeo:/ugeo_back/ugeougeo
+            - ./migrations:/ugeo_back/migrations
         environment:
             - DB_ID=root
             - DB_URL=db
