@@ -28,7 +28,7 @@ def get_user_by_email(db: Session, email: EmailStr) -> User | None:
 
 
 def get_user_by_username(db: Session, username: str) -> User | None:
-    return db.query(User).filter(User.username == username)
+    return db.query(User).filter(User.username == username).first()
 
 
 def get_user_by_id(db: Session, id: int) -> User | None:
@@ -45,7 +45,8 @@ def get_exist_username(db: Session, _username: user.UsernameValid):
 
 def search_by_username(db: Session, _keyword: str):
     search_str = f'%{_keyword}%'
-    db_results = db.query(User).filter(or_(User.username.like(search_str), User.nickname.like(search_str)))
+    db_results = db.query(User).filter(
+        or_(User.username.like(search_str), User.nickname.like(search_str)))
 
     search_result = []
 

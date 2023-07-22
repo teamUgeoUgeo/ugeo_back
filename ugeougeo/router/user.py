@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Header
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -12,6 +12,7 @@ from ugeougeo.validation import user as user_validation
 from ugeougeo.service import user as user_service
 from ugeougeo.config import const
 from ugeougeo.models import User
+from ugeougeo.service import article
 
 router = APIRouter(prefix="/api/user", )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
@@ -138,6 +139,17 @@ def check_username(_username: user_validation.UsernameValid,
 @router.get("/search/{username}", tags=['USER'], summary="유저 조회")
 def search_user(username: str, db: Session = Depends(get_db)):
     return user_service.search_by_username(db, username)
+
+
+@router.get("/profile/{username}", tags=['USER'], summary="유저 프로필 조회")
+def get_user_profile(username: str, db: Session = Depends(get_db), Authorization: str | None = Header(default=None)):
+    db_result = user_service.get_user_by_username(db, username)
+    response = {'username': db_result.username, 'nickname': db_result.nickname}
+
+    if Authorization is not None:
+        response['articles']= article.get_article_list(db, db_result.id)
+
+    return response
 
 
 def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
