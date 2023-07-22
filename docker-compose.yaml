@@ -13,7 +13,7 @@ services:
         build :
           dockerfile: run.Dockerfile
         volumes:
-            - ./ugeougeo:/ugeougeo
+            - ./ugeougeo:/ugeo_back/ugeougeo
         environment:
             - DB_ID=root
             - DB_URL=db

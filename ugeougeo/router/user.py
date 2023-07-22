@@ -100,14 +100,13 @@ def check_email(_email: user_validation.EmailValid,
     return
 
 
-@router.put("/",
-            status_code=status.HTTP_204_NO_CONTENT,
-            summary="유저 정보 수정",
-            tags=['AUTH'])
-def edit_article(_user_update: user_validation.Validation,
+@router.patch("/",
+              status_code=status.HTTP_204_NO_CONTENT,
+              summary="유저 정보 수정",
+              tags=['AUTH'])
+def edit_article(_user_update: user_validation.PatchUser,
                  db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
-
     db_user = user_service.get_user_by_id(db, id=current_user.id)
 
     if not db_user:
@@ -117,7 +116,9 @@ def edit_article(_user_update: user_validation.Validation,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="수정 권한이 없습니다.")
 
-    user_service.update(db=db, db_user=db_user, user_update=_user_update)
+    update_data = _user_update.dict(exclude_unset=True)
+
+    user_service.update(update_user=update_data, db=db, db_user=db_user)
 
     return
 
@@ -142,12 +143,14 @@ def search_user(username: str, db: Session = Depends(get_db)):
 
 
 @router.get("/profile/{username}", tags=['USER'], summary="유저 프로필 조회")
-def get_user_profile(username: str, db: Session = Depends(get_db), Authorization: str | None = Header(default=None)):
+def get_user_profile(username: str,
+                     db: Session = Depends(get_db),
+                     Authorization: str | None = Header(default=None)):
     db_result = user_service.get_user_by_username(db, username)
     response = {'username': db_result.username, 'nickname': db_result.nickname}
 
     if Authorization is not None:
-        response['articles']= article.get_article_list(db, db_result.id)
+        response['articles'] = article.get_article_list(db, db_result.id)
 
     return response
 
