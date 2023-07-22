@@ -135,6 +135,11 @@ def check_username(_username: user_validation.UsernameValid,
     return
 
 
+@router.get("/search/{username}", tags=['USER'], summary="유저 조회")
+def search_user(username: str, db: Session = Depends(get_db)):
+    return user_service.search_by_username(db, username)
+
+
 def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):
     user = user_service.get_user_by_email(db, EmailStr(form_data.username))
     if not user or not user_service.pwd_context.verify(form_data.password,
