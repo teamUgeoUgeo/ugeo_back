@@ -18,7 +18,7 @@ services:
             - DB_ID=root
             - DB_URL=db
             - DB_PASSWORD=$MYSQL_ROOT_PASSWORD
-        command: sh -c "poetry run alembic upgrade head & poetry run uvicorn ugeougeo.main:app --host 0.0.0.0 --reload"
+        command: sh run.sh
         env_file:
             - "./.env"
         depends_on:
@@ -31,7 +31,7 @@ services:
         env_file:
             - "./.env"
         ports:
-            - "3306:3306"
+            - "3307:3306"
         command:
             - --character-set-server=utf8mb4
             - --collation-server=utf8mb4_unicode_ci
