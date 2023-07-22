@@ -1,6 +1,7 @@
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from sqlalchemy.sql import or_
 
 from ugeougeo.validation import user
 from ugeougeo.models import User
@@ -26,6 +27,10 @@ def get_user_by_email(db: Session, email: EmailStr) -> User | None:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_username(db: Session, username: str) -> User | None:
+    return db.query(User).filter(User.username == username)
+
+
 def get_user_by_id(db: Session, id: int) -> User | None:
     return db.query(User).filter(User.id == id).first()
 
@@ -36,6 +41,22 @@ def get_exist_email(db: Session, _email: user.EmailValid):
 
 def get_exist_username(db: Session, _username: user.UsernameValid):
     return db.query(User).filter(User.username == _username.username).first()
+
+
+def search_by_username(db: Session, _keyword: str):
+    search_str = f'%{_keyword}%'
+    db_results = db.query(User).filter(or_(User.username.like(search_str), User.nickname.like(search_str)))
+
+    search_result = []
+
+    for result in db_results.all():
+        print(result)
+        search_result.append({
+            'username': result.username,
+            'nickname': result.nickname
+        })
+
+    return search_result
 
 
 def update(db: Session, db_user: User, user_update: user.Validation):
