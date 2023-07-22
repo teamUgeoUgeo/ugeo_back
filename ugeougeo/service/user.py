@@ -43,6 +43,15 @@ def get_exist_username(db: Session, _username: user.UsernameValid):
     return db.query(User).filter(User.username == _username.username).first()
 
 
+def update(db: Session, db_user: User, update_user):
+    print(update_user)
+    if 'email' in update_user:
+        db_user.email = update_user['email']
+    if 'username' in update_user:
+        db_user.username = update_user['username']
+    if 'nickname' in update_user:
+        db_user.nickname = update_user['nickname']
+
 def search_by_username(db: Session, _keyword: str):
     search_str = f'%{_keyword}%'
     db_results = db.query(User).filter(
