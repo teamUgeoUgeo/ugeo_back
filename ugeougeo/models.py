@@ -21,7 +21,7 @@ class Article(Base):
     amount = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     create_at = Column(DateTime, nullable=False)
-    detail = Column(String(255), unique=True, nullable=False)
+    detail = Column(String(255), nullable=False)
     user = relationship("User", backref="article_users")
 
 

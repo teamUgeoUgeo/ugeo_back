@@ -50,7 +50,7 @@ def create_article(db: Session, article_create: ArticleCreate,
     db.commit()
     db.flush()
 
-    return db_article.id
+    return db_article
 
 
 def get_article_list(db: Session, user_id: int):
@@ -73,7 +73,7 @@ def get_article_list(db: Session, user_id: int):
 
 
 def get_article(db: Session, article_id: int):
-    article = db.query(Article).get(article_id)
+    article = db.get(Article, article_id)
     return article
 
 
