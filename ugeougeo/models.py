@@ -35,3 +35,12 @@ class Comment(Base):
     detail = Column(String(140))
     user = relationship("User")
     article = relationship("Article")
+
+
+class Follow(Base):
+    __tablename__ = "follow"
+
+    id = Column(Integer, primary_key=True)
+    follow_user = Column(Integer, ForeignKey("user.id"), nullable=False)
+    be_followed_user = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user = relationship("User")

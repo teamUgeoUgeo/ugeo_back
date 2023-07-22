@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from ugeougeo.router import user, article, comment
+from ugeougeo.router import user, article, comment, follow
 
 tags_metadata = [{
     "name": "AUTH",
@@ -30,3 +30,4 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(article.router)
 app.include_router(comment.router)
+app.include_router(follow.router)
