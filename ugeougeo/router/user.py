@@ -120,6 +120,28 @@ def edit_user_info(_user_update: user_validation.PatchUserInfo,
 
     user_service.update_info(update_user=update_data, db=db, db_user=db_user)
 
+    return
+
+
+@router.patch("/password",
+              status_code=status.HTTP_204_NO_CONTENT,
+              summary="유저 정보 수정",
+              tags=['AUTH'])
+def edit_user_password(_user_update: user_validation.PatchPassword,
+                       db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_user)):
+    db_user = user_service.get_user_by_id(db, id=current_user.id)
+
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을수 없습니다.")
+    if current_user.id != db_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="수정 권한이 없습니다.")
+
+    user_service.update_password(update_user=_user_update,
+                                 db=db,
+                                 db_user=db_user)
 
     return
 

@@ -2,6 +2,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from sqlalchemy.sql import or_
+from fastapi import HTTPException, status
 
 from ugeougeo.validation import user
 from ugeougeo.models import User
@@ -50,6 +51,16 @@ def update_info(db: Session, db_user: User, update_user: dict):
         db_user.username = update_user['username']
     if 'nickname' in update_user:
         db_user.nickname = update_user['nickname']
+    db.add(db_user)
+    db.commit()
+
+
+def update_password(db: Session, db_user: User,
+                    update_user: user.PatchPassword):
+    if not pwd_context.verify(update_user.current_password, db_user.password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+
+    db_user.password = pwd_context.hash(update_user.new_password)
     db.add(db_user)
     db.commit()
 

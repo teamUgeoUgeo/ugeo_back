@@ -20,6 +20,17 @@ class PatchUserInfo(BaseModel):
     email: str = None
 
 
+class PatchPassword(BaseModel):
+    current_password: str = None
+    new_password: str = None
+
+    @validator('current_password', 'new_password')
+    def not_empty(cls, value):
+        if not value or not value.strip():
+            raise ValueError('빈 값은 허용되지 않습니다.')
+        return value
+
+
 class EmailValid(BaseModel):
     email: EmailStr
 
