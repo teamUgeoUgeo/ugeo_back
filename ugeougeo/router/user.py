@@ -100,13 +100,13 @@ def check_email(_email: user_validation.EmailValid,
     return
 
 
-@router.patch("/",
+@router.patch("/info",
               status_code=status.HTTP_204_NO_CONTENT,
               summary="유저 정보 수정",
               tags=['AUTH'])
-def edit_article(_user_update: user_validation.PatchUser,
-                 db: Session = Depends(get_db),
-                 current_user: User = Depends(get_current_user)):
+def edit_user_info(_user_update: user_validation.PatchUserInfo,
+                   db: Session = Depends(get_db),
+                   current_user: User = Depends(get_current_user)):
     db_user = user_service.get_user_by_id(db, id=current_user.id)
 
     if not db_user:
@@ -118,7 +118,8 @@ def edit_article(_user_update: user_validation.PatchUser,
 
     update_data = _user_update.dict(exclude_unset=True)
 
-    user_service.update(update_user=update_data, db=db, db_user=db_user)
+    user_service.update_info(update_user=update_data, db=db, db_user=db_user)
+
 
     return
 

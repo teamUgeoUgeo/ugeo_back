@@ -14,7 +14,7 @@ class Validation(BaseModel):
         return value
 
 
-class PatchUser(BaseModel):
+class PatchUserInfo(BaseModel):
     username: str = None
     nickname: str = None
     email: str = None
