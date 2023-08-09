@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Header
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -12,6 +12,7 @@ from ugeougeo.validation import user as user_validation
 from ugeougeo.service import user as user_service
 from ugeougeo.config import const
 from ugeougeo.models import User
+from ugeougeo.service import article
 
 router = APIRouter(prefix="/api/user", )
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/test_login")
@@ -99,14 +100,13 @@ def check_email(_email: user_validation.EmailValid,
     return
 
 
-@router.put("/",
-            status_code=status.HTTP_204_NO_CONTENT,
-            summary="유저 정보 수정",
-            tags=['AUTH'])
-def edit_article(_user_update: user_validation.Validation,
-                 db: Session = Depends(get_db),
-                 current_user: User = Depends(get_current_user)):
-
+@router.patch("/info",
+              status_code=status.HTTP_204_NO_CONTENT,
+              summary="유저 정보 수정",
+              tags=['AUTH'])
+def edit_user_info(_user_update: user_validation.PatchUserInfo,
+                   db: Session = Depends(get_db),
+                   current_user: User = Depends(get_current_user)):
     db_user = user_service.get_user_by_id(db, id=current_user.id)
 
     if not db_user:
@@ -116,7 +116,32 @@ def edit_article(_user_update: user_validation.Validation,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="수정 권한이 없습니다.")
 
-    user_service.update(db=db, db_user=db_user, user_update=_user_update)
+    update_data = _user_update.dict(exclude_unset=True)
+
+    user_service.update_info(update_user=update_data, db=db, db_user=db_user)
+
+    return
+
+
+@router.patch("/password",
+              status_code=status.HTTP_204_NO_CONTENT,
+              summary="유저 정보 수정",
+              tags=['AUTH'])
+def edit_user_password(_user_update: user_validation.PatchPassword,
+                       db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_user)):
+    db_user = user_service.get_user_by_id(db, id=current_user.id)
+
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="데이터를 찾을수 없습니다.")
+    if current_user.id != db_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="수정 권한이 없습니다.")
+
+    user_service.update_password(update_user=_user_update,
+                                 db=db,
+                                 db_user=db_user)
 
     return
 
@@ -133,6 +158,24 @@ def check_username(_username: user_validation.UsernameValid,
                             detail="사용 중인 이메일 입니다")
 
     return
+
+
+@router.get("/search/{username}", tags=['USER'], summary="유저 조회")
+def search_user(username: str, db: Session = Depends(get_db)):
+    return user_service.search_by_username(db, username)
+
+
+@router.get("/profile/{username}", tags=['USER'], summary="유저 프로필 조회")
+def get_user_profile(username: str,
+                     db: Session = Depends(get_db),
+                     Authorization: str | None = Header(default=None)):
+    db_result = user_service.get_user_by_username(db, username)
+    response = {'username': db_result.username, 'nickname': db_result.nickname}
+
+    if Authorization is not None:
+        response['articles'] = article.get_article_list(db, db_result.id)
+
+    return response
 
 
 def _create_token(db: Session, form_data: OAuth2PasswordRequestForm):

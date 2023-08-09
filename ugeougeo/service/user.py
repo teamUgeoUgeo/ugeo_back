@@ -1,6 +1,8 @@
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from sqlalchemy.sql import or_
+from fastapi import HTTPException, status
 
 from ugeougeo.validation import user
 from ugeougeo.models import User
@@ -26,6 +28,10 @@ def get_user_by_email(db: Session, email: EmailStr) -> User | None:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_username(db: Session, username: str) -> User | None:
+    return db.query(User).filter(User.username == username).first()
+
+
 def get_user_by_id(db: Session, id: int) -> User | None:
     return db.query(User).filter(User.id == id).first()
 
@@ -38,10 +44,39 @@ def get_exist_username(db: Session, _username: user.UsernameValid):
     return db.query(User).filter(User.username == _username.username).first()
 
 
-def update(db: Session, db_user: User, user_update: user.Validation):
-    db_user.email = user_update.email
-    db_user.username = user_update.username
-    db_user.nickname = user_update.nickname
-    db_user.password = pwd_context.hash(user_update.password)
+def update_info(db: Session, db_user: User, update_user: dict):
+    if 'email' in update_user:
+        db_user.email = update_user['email']
+    if 'username' in update_user:
+        db_user.username = update_user['username']
+    if 'nickname' in update_user:
+        db_user.nickname = update_user['nickname']
     db.add(db_user)
     db.commit()
+
+
+def update_password(db: Session, db_user: User,
+                    update_user: user.PatchPassword):
+    if not pwd_context.verify(update_user.current_password, db_user.password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+
+    db_user.password = pwd_context.hash(update_user.new_password)
+    db.add(db_user)
+    db.commit()
+
+
+def search_by_username(db: Session, _keyword: str):
+    search_str = f'%{_keyword}%'
+    db_results = db.query(User).filter(
+        or_(User.username.like(search_str), User.nickname.like(search_str)))
+
+    search_result = []
+
+    for result in db_results.all():
+        print(result)
+        search_result.append({
+            'username': result.username,
+            'nickname': result.nickname
+        })
+
+    return search_result
